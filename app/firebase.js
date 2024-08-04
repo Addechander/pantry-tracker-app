@@ -7,17 +7,20 @@ import { getFirestore } from "firebase/firestore";
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCGPvn231zOCITbVc3dga1VxEndeeqegLw",
-  authDomain: "pantry-app-c5684.firebaseapp.com",
-  projectId: "pantry-app-c5684",
-  storageBucket: "pantry-app-c5684.appspot.com",
-  messagingSenderId: "784132953221",
-  appId: "1:784132953221:web:a7f53a8e1fcd73472805ec"
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
+
+console.log('Firebase Config:', firebaseConfig);
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const db =getFirestore(app);
+
 
 
 
