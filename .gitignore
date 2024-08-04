@@ -59,5 +59,3 @@ functions/node_modules/
 # Logs
 *.log
 
-#Environment VAriables
-.env
