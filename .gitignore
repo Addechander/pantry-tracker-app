@@ -52,10 +52,6 @@ node_modules/
 functions/node_modules/
 
 # Environment variables
-.env
-.env.development.local
-.env.test.local
-.env.production.local
 
 # Mac OS specific files
 .DS_Store
