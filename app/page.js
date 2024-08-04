@@ -1,6 +1,6 @@
 'use client';
 import React,{ useState, useEffect} from "react";
-import { collection, addDoc, getDoc, QuerySnapshot, query, onSnapshot, deleteDoc, doc } from "firebase/firestore"; 
+import { collection, addDoc, getDoc, QuerySnapshot, query, onSnapshot, deleteDoc, doc, updateDoc } from "firebase/firestore"; 
 import { db } from "./firebase";
 
 export default function Home() {
@@ -59,14 +59,50 @@ useEffect(() => {
 
   // Delete items from database
   const deleteItem = async (id) => {
-    await deleteDoc(doc(db, 'items', id));
+    // Show confirmation dialog
+    const confirmed = window.confirm("Are you sure you want to delete this item?");
+    
+    if (confirmed) {
+      // Proceed with deletion if confirmed
+      await deleteDoc(doc(db, 'items', id));
+    }
   };
-
 // Toggle sort order
 const toggleSortOrder = () => {
   setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
 };
 
+// Update the quantity of an item
+const updateQuantity = async (id, newQuantity) => {
+  // Convert newQuantity to a number and round it to 2 decimal places
+  newQuantity = Math.round(parseFloat(newQuantity) * 100) / 100;
+
+  // Check if newQuantity is a valid number
+  if (isNaN(newQuantity)) {
+    console.error("Invalid quantity");
+    return;
+  }
+
+  // Prevent quantity from going below 0
+  if (newQuantity < 0) {
+    newQuantity = 0;
+  }
+
+  // Set a maximum quantity (e.g., 1000000)
+  const MAX_QUANTITY = 1000000;
+  if (newQuantity > MAX_QUANTITY) {
+    newQuantity = MAX_QUANTITY;
+  }
+
+  try {
+    const itemRef = doc(db, 'items', id);
+    await updateDoc(itemRef, {
+      quantity: newQuantity
+    });
+  } catch (error) {
+    console.error("Error updating quantity:", error);
+  }
+};
   return (
       <main className="flex min-h-screen flex-col items-center justify-between p-24">
         <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm ">
@@ -129,12 +165,26 @@ const toggleSortOrder = () => {
                     <span className='capitalize'>{item.name}</span>
                     <span>{item.quantity}</span>
                   </div>
-                  <button
-                    onClick={() => deleteItem(item.id)}
-                    className='ml-8 p-4 border-l-2 border-slate-900 hover:bg-slate-900 w-16'
-                  >
-                    X
-                  </button>
+                  <div className='flex'>
+                    <button
+                      onClick={() => updateQuantity(item.id, parseFloat(item.quantity) - 1)}
+                      className='px-5 py-2 border-l border-slate-900 hover:bg-slate-900 flex items-center justify-center text-xl'
+                    >
+                      -
+                    </button>
+                    <button
+                      onClick={() => updateQuantity(item.id, parseFloat(item.quantity) + 1)}
+                      className='px-5 py-2 border-l border-slate-900 hover:bg-slate-900 flex items-center justify-center text-xl'
+                    >
+                      +
+                    </button>
+                    <button
+                      onClick={() => deleteItem(item.id)}
+                      className='px-5 py-2 border-l border-slate-900 hover:bg-slate-900 flex items-center justify-center text-xl'
+                    >
+                      x
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -146,7 +196,7 @@ const toggleSortOrder = () => {
                 )} 
           </div>
         </div>
-        <footer className="text-white text-center text-1xl p-1">
+        <footer className="text-white text-center text-1xl p-1 ml-2">
               <p>&copy; {new Date().getFullYear()} Prateek Chand. All rights reserved.</p>
         </footer>
       </main>
